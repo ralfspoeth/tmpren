@@ -8,7 +8,6 @@ import java.util.regex.PatternSyntaxException;
 
 public class Main {
     public static void main(String[] args) {
-
         try {
             var srcPattern = Pattern.compile(args[0]);
             var linkPattern = args[1];

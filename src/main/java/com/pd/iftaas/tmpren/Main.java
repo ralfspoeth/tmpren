@@ -8,10 +8,11 @@ import java.util.regex.PatternSyntaxException;
 
 public class Main {
     public static void main(String[] args) {
-        var dir = Path.of(System.getProperty("user.dir"));
+
         try {
             var srcPattern = Pattern.compile(args[0]);
             var linkPattern = args[1];
+            var dir = Path.of(args.length>2?args[2]:System.getProperty("user.dir"));
             try (var dirContents = Files.list(dir)) {
                 dirContents.map(Path::getFileName).forEach(f -> {
                             var m = srcPattern.matcher(f.toString());
@@ -36,9 +37,11 @@ public class Main {
     }
 
     private static void usage() {
-        System.out.println("Usage: tmpren <srcpattern> <linkexpr>");
+        System.out.println("Usage: tmpren <srcpattern> <linkexpr> [<dir>]");
         System.out.println("Where:");
         System.out.println("\tsrcpattern = regex expression for the source file, potentially containing groups");
         System.out.println("\tlinkexpr = expression for the link file, potentially containing group refs");
+        System.out.println("\tdir = optional target dir");
+
     }
 }

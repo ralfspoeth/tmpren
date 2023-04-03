@@ -10,18 +10,23 @@ public class Main {
     public static void main(String[] args) {
         try {
             var srcPattern = Pattern.compile(args[0]);
-            var linkPattern = args[1];
+            var linkPattern = args.length>1?args[1]:null;
             var dir = Path.of(args.length>2?args[2]:System.getProperty("user.dir"));
             try (var dirContents = Files.list(dir)) {
                 dirContents.map(Path::getFileName).forEach(f -> {
                             var m = srcPattern.matcher(f.toString());
                             if (m.matches()) {
-                                var linkedFile = dir.resolve(m.replaceAll(linkPattern));
-                                try {
-                                    Files.createDirectories(linkedFile.getParent());
-                                    Files.createLink(linkedFile, dir.resolve(f));
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
+                                if(linkPattern!=null) {
+                                    var linkedFile = dir.resolve(m.replaceAll(linkPattern));
+                                    try {
+                                        Files.createDirectories(linkedFile.getParent());
+                                        Files.createLink(linkedFile, dir.resolve(f));
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                                else {
+                                    System.out.println(m.group());
                                 }
                             }
                         }

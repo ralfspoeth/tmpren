@@ -1,51 +1,64 @@
 package com.pd.iftaas.tmpren;
 
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
-public class Main {
-    public static void main(String[] args) {
-        try {
-            var srcPattern = Pattern.compile(args[0]);
-            var linkPattern = args.length>1?args[1]:null;
-            var dir = Path.of(args.length>2?args[2]:System.getProperty("user.dir"));
-            try (var dirContents = Files.list(dir)) {
-                dirContents.map(Path::getFileName).forEach(f -> {
-                            var m = srcPattern.matcher(f.toString());
-                            if (m.matches()) {
-                                if(linkPattern!=null) {
-                                    var linkedFile = dir.resolve(m.replaceAll(linkPattern));
-                                    try {
-                                        Files.createDirectories(linkedFile.getParent());
-                                        Files.createLink(linkedFile, dir.resolve(f));
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                }
-                                else {
-                                    System.out.println(m.group());
-                                }
-                            }
-                        }
-                );
-            }
-        } catch (IndexOutOfBoundsException | PatternSyntaxException e) {
-            usage();
-            e.printStackTrace();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+@Command(name = "tmpren", mixinStandardHelpOptions = true, version = "1.0.0-SNAPSHOT")
+public class Main implements Callable<Integer> {
+
+    @Option(names = {"-s", "--src"}, description = """
+            The source pattern; provide a regular expression with two capturing groups \
+            one of which extracts the fund and another which extracts the date component \
+            of the file.""")
+    private String srcPattern = "PD_IFTAAS_(?:\\w+)_(?:\\w+_)?([0-9]{3}[0-9]?00)_(2[0-9]{7}).*\\.xml(?:\\.gz)?";
+    @Option(names = {"-f", "--funds-target"}, description = """
+            Regular expression for the funds target directory; use $n \
+            to reference the n-th group in the srcPattern.""")
+    private String fundsTargetPattern = "funds/$1";
+
+    @Option(names = {"-d", "--dates-target"}, description = """
+            Regular expression for the dates target directory; use $n \
+            to reference the n-th group in the srcPattern.""")
+    private String datesTargetPattern = "dates/$2";
+
+    @Option(names = {"-p", "--path"}, description = """
+            The path to the start directory in that the files \
+            will be matched with the given source pattern.""")
+    private Path dir = Path.of(System.getProperty("user.dir"));
+
+    public Integer call() throws IOException {
+        var src = Pattern.compile(srcPattern);
+        try (var dirContents = Files.list(dir)) {
+            dirContents.map(Path::getFileName).forEach(f -> {
+                var m = src.matcher(f.toString());
+                if (m.matches()) {
+                    var fundsLink = dir.resolve(m.replaceAll(fundsTargetPattern));
+                    var datesLink = dir.resolve(m.replaceAll(datesTargetPattern));
+                    try {
+                        createLink(fundsLink.resolve(f), dir.resolve(f));
+                        createLink(datesLink.resolve(f), dir.resolve(f));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            return 0;
         }
     }
 
-    private static void usage() {
-        System.out.println("Usage: tmpren <srcpattern> <linkexpr> [<dir>]");
-        System.out.println("Where:");
-        System.out.println("\tsrcpattern = regex expression for the source file, potentially containing groups");
-        System.out.println("\tlinkexpr = expression for the link file, potentially containing group refs");
-        System.out.println("\tdir = optional target dir");
+    private void createLink(Path link, Path src) throws IOException {
+        Files.createDirectories(link.getParent());
+        Files.createLink(link, src);
+    }
 
+    public static void main(String[] args) throws IOException {
+        System.exit(new CommandLine(new Main()).execute(args));
     }
 }

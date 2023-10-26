@@ -73,15 +73,19 @@ class MainTest {
 
     private static void removeRecursively(Path dir) {
         try{
-            Files.list(dir).filter(Files::isDirectory).forEach(MainTest::removeRecursively);
-            Files.list(dir).filter(Files::isRegularFile).forEach(MainTest::rm);
+            try(var dirs = Files.list(dir)) {
+                dirs.filter(Files::isDirectory).forEach(MainTest::removeRecursively);
+            }
+            try(var dirs = Files.list(dir)) {
+                dirs.filter(Files::isRegularFile).forEach(MainTest::remove);
+            }
             Files.delete(dir);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void rm(Path file) {
+    private static void remove(Path file) {
         try {
             Files.delete(file);
         } catch (IOException e) {

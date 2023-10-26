@@ -17,7 +17,7 @@ public class Main implements Callable<Integer> {
             The source pattern; provide a regular expression with two capturing groups \
             one of which extracts the fund and another which extracts the date component \
             of the file.""")
-    private String srcPattern = "PD_IFTAAS_(?:\\w+)_(?:\\w+_)?([0-9]{3}[0-9]?00)_(2[0-9]{7}).*\\.xml(?:\\.gz)?";
+    private String srcPattern = "PD_IFTAAS_\\w+_(?:\\w+_)?([0-9]{3}[0-9]?00)_(2[0-9]{7}).*\\.xml(?:\\.gz)?";
     @Option(names = {"-f", "--funds-target"}, description = """
             Regular expression for the funds target directory; use $n \
             to reference the n-th group in the srcPattern.""")
@@ -58,7 +58,7 @@ public class Main implements Callable<Integer> {
         Files.createLink(link, src);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         System.exit(new CommandLine(new Main()).execute(args));
     }
 }

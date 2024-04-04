@@ -55,7 +55,7 @@ public class Main implements Callable<Integer> {
 
     private void createLink(Path link, Path src) throws IOException {
         Files.createDirectories(link.getParent());
-        Files.createLink(link, src);
+        Files.createSymbolicLink(link, src);
     }
 
     public static void main(String[] args) {

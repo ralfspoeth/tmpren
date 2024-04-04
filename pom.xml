@@ -93,7 +93,8 @@
                     <stripDebug>true</stripDebug>
                     <compress>2</compress>
                     <detail>true</detail>
-                    <sourceJdkModules>~/linux-x64-jdk-21.0.1</sourceJdkModules>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <sourceJdkModules>${user.home}/linux-x64-jdk-21</sourceJdkModules>
                 </configuration>
             </plugin>
         </plugins>

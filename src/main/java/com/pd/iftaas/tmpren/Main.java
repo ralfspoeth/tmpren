@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
-@Command(name = "tmpren", mixinStandardHelpOptions = true, version = "1.0.0-SNAPSHOT")
+@Command(name = "tmpren", mixinStandardHelpOptions = true, version = "1.0.1-SNAPSHOT")
 public class Main implements Callable<Integer> {
 
     @Option(names = {"-s", "--src"}, description = """

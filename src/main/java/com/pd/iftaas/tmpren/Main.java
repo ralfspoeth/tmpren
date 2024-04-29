@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
-@Command(name = "tmpren", mixinStandardHelpOptions = true, version = "1.0.1-SNAPSHOT")
+@Command(name = "tmpren", mixinStandardHelpOptions = true, version = "1.0.2-SNAPSHOT")
 public class Main implements Callable<Integer> {
 
     @Option(names = {"-s", "--src"}, description = """
@@ -55,7 +55,7 @@ public class Main implements Callable<Integer> {
 
     private void createLink(Path link, Path src) throws IOException {
         Files.createDirectories(link.getParent());
-        Files.createSymbolicLink(link, src);
+        Files.createLink(link, src);
     }
 
     public static void main(String[] args) {
